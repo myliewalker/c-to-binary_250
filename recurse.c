@@ -6,7 +6,7 @@ int main(int num, char* args[]) {
     int n;
     sscanf(args[num-1], "%d", &n);
     int fib = f(n);
-    printf("%d", fib);
+    printf("%d\n", fib);
     return 0;
 }
 
