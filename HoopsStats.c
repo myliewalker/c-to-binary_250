@@ -14,7 +14,8 @@ typedef struct player {
 FILE *fr;
 
 int sort(bb_player *players, int count);
-int swap(bb_player* players, bb_player a, bb_player b, int loc);
+int merge(bb_player *players, int count);
+// int swap(bb_player* players, bb_player a, bb_player b, int loc);
 
 int main(int num, char* args[]) {
     char* file_name = args[num-1];
@@ -81,33 +82,50 @@ int main(int num, char* args[]) {
     return 0;
 }
 
+//Use MergeSort
 int sort(bb_player *players, int count) {
-    if (remaining == 0) return 0;
-
-    if (low.avg_points == high.avg_points) {
-        if (low.name > high.name) {
-            swap(players, low, high, start);
-        }
+    if (count <= 1) return 0;
+    int current = 0;
+    int middle = count/2;
+    
+    bb_player *first = players;
+    bb_player *tmp1;
+    while (current <= middle) {
+        tmp1 = players; //check line
+        players = players->next;
+        current++;
     }
-    if (low.avg_points < high.avg_points) {
-        swap(players, low, high, start);
-    }
+    sort(first, current-1);
+    merge(first, count);
 
-    sort(players, players[start+1], players[start+2], start+1, remaining-1);
-    return 0;
+    bb_player *second = players;
+    bb_player *tmp2;
+    while (current < count) {
+        tmp2 = players;
+        players = players->next;
+    }
+    sort(second, middle);
+    merge(second, count);
 }
 
-int swap(bb_player* players, bb_player a, bb_player b, int loc) {
-    bb_player temp;
-    for (int i = 0; i < sizeof(a.name)/sizeof(a.name[0]); i++) {
-        temp.name[i] = a.name[i];
+int merge (bb_player *players, int count) {
+    if (count == 1) return 0;
+    
+    while (players->next != NULL) {
+        if (players->next->next->avg_points > players->next->avg_points) {
+            bb_player *temp = players->next;
+            players->next = players->next->next;
+            players->next->next = temp;
+        }
+         if (players->next->next->avg_points == players->next->avg_points) {
+             if (strncmp(players->next->next->name, players->next->name, 80) < 0) {
+                 bb_player *temp = players->next;
+                players->next = players->next->next;
+                players->next->next = temp;
+             }
+         }
+        players = players->next;
     }
-    temp.number = a.number;
-    temp.avg_points = a.avg_points;
-    temp.year = a.year;
-
-    players[loc] = players[loc+1];
-    players[loc+1] = temp;
 
     return 0;
 }
