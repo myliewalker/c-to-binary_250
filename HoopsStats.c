@@ -30,7 +30,8 @@ int main(int num, char* args[]) {
     }
 
     while(fgets(line, 80, fr) != NULL) {
-        if (strncmp(line, "DONE", 80) == 0) break;
+        if (strncmp(line, "DONE\n", 80) == 0) break;
+        //can we assume done will end with a new line??
 
         char temp_name[80];
         int temp_num;
@@ -38,13 +39,13 @@ int main(int num, char* args[]) {
         int temp_year;
         bb_player* p = (bb_player*)malloc(sizeof(bb_player));
         
-        sscanf(line, "%s\n", p[0].name);
+        sscanf(line, "%s", p[0].name);
         fgets(line, 80, fr);
-        sscanf(line, "%d\n", &temp_num);
+        sscanf(line, "%d", &temp_num);
         fgets(line, 80, fr);
-        sscanf(line, "%f\n", &temp_points);
+        sscanf(line, "%f", &temp_points);
         fgets(line, 80, fr);
-        sscanf(line, "%d\n", &temp_year);
+        sscanf(line, "%d", &temp_year);
        
         p[0].number = temp_num;
         p[0].avg_points = temp_points;
