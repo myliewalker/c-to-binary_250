@@ -13,15 +13,16 @@ typedef struct player {
 
 FILE *fr;
 
-bb_player* sort(bb_player *players, int total);
-bb_player* getFirst(bb_player *players);
-bb_player* getLast(bb_player *players);
-bb_player* findMax(bb_player *players, bb_player *min, bb_player *max);
-int after(bb_player *a, bb_player *b);
+int sort(int total);
+bb_player* getFirst();
+bb_player* getLast();
+bb_player* findMax(bb_player *min, bb_player *max);
+
+bb_player *players;
 
 int main(int num, char* args[]) {
     char* file_name = args[num-1];
-    bb_player *players = NULL;
+    players = NULL;
     bb_player *tmp = NULL;
     int count = 0;
     char line[80];
@@ -66,20 +67,12 @@ int main(int num, char* args[]) {
         count++;
     }
 
-    players = sort(players, count);
+    sort(count);
 
     tmp = players;
     while (tmp != NULL) {
         printf("%s %d %d\n", tmp->name, tmp->number, tmp->year);
         tmp = tmp->next;
-    }
-
-    //ISSUE: fix this
-    tmp = players;
-    while (tmp != NULL && tmp->next != NULL) {
-        bb_player *t = tmp->next;
-        tmp = tmp->next;
-        free (t);
     }
 
     while (players != NULL) {
@@ -92,16 +85,18 @@ int main(int num, char* args[]) {
     return 0;
 }
 
-bb_player* sort(bb_player *players, int total) {
-    if (total <= 1) return players;
+int sort(int total) {
+    if (total <= 1) return 0;
     
-    bb_player *head = getFirst(players);
-    bb_player *last = getLast(players);
+    bb_player *head = getFirst();
+    bb_player *last = getLast();
     bb_player *tmp = head;
     int count = 1;
 
+    return 0;
+
     while (count < total) {
-        bb_player *current_max = findMax(players, last, tmp);
+        bb_player *current_max = findMax(last, tmp);
         bb_player *t = (bb_player*) malloc(sizeof(bb_player));
 
         strcpy(t->name, current_max->name);
@@ -113,11 +108,20 @@ bb_player* sort(bb_player *players, int total) {
         tmp->next = t;
         tmp = tmp->next;
         count++;
+        
+        bb_player *f = t;
+        // free(f);
     }
-    return head;
+    // //ISSUE: leak - need to free space i malloced
+    while (players != NULL) {
+        bb_player *tmp = players;
+        players = players->next;
+        free(tmp);
+    }
+    return 0;
 }
 
-bb_player* getFirst(bb_player *players) {
+bb_player* getFirst() {
     bb_player *first = players;
     while (players != NULL) {
         if (players->avg_points > first->avg_points) {
@@ -131,7 +135,7 @@ bb_player* getFirst(bb_player *players) {
     return first;
 }
 
-bb_player* getLast(bb_player *players) {
+bb_player* getLast() {
     bb_player *last = players;
     while (players != NULL) {
         if (players->avg_points < last->avg_points) {
@@ -145,38 +149,21 @@ bb_player* getLast(bb_player *players) {
     return last;
 }
 
-bb_player* findMax(bb_player *players, bb_player *min, bb_player *max) {
+bb_player* findMax(bb_player *min, bb_player *max) {
     bb_player *new_max = min;
     while (players != NULL) {
-        // if (after(players, max) == 1) continue;
-        if (players->avg_points > new_max->avg_points && players->avg_points < max->avg_points) {
+        if (players->next == NULL) {
+            if (players->avg_points > max->avg_points || 
+            players->avg_points == max->avg_points && strncmp(players->name, max->name, 80) == 0) 
+                break;
+        }
+        if (players->avg_points > new_max->avg_points) {
             new_max = players;
         }
-        // if (players->avg_points == new_max->avg_points) {
-            
-        // }
-        // if (strcmp(players->name, new_max->name) < 0) {
-        //     new_max = players;
-        // }
-        // if ((players->avg_points > max->avg_points) || 
-        //     (players->avg_points == max->avg_points && strcmp(players->name, max->name) <= 0)) {
-        //     if (players->next == NULL) break;
-        //     else continue;
-        // }
-        // if (players->avg_points > new_max->avg_points) {
-        //     new_max = players;
-        // }
-        // else if (players->avg_points == new_max->avg_points && strncmp(players->name, new_max->name, 80) < 0) {
-        //     new_max = players;
-        // }
+        else if (players->avg_points == new_max->avg_points && strncmp(players->name, new_max->name, 80) < 0) {
+            new_max = players;
+        }
         players = players->next;
     }
     return new_max;
-}
-
-int after(bb_player *a, bb_player *b) {
-    if (a->avg_points > b->avg_points) return 1;
-    if (a->avg_points < b->avg_points) return 0;
-    if (strcmp(a->name, b->name) == 0 || strcmp(a->name, b->name) < 0) return 1;
-    return 0;
 }
