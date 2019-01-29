@@ -91,12 +91,14 @@ int sort(bb_player *players, int count) {
     bb_player *first = players;
     bb_player *tmp1;
     while (current <= middle) {
-        tmp1 = players; //check line
+        tmp1 = players;
         players = players->next;
         current++;
     }
     sort(first, current-1);
+    printf("Completed sort on first half\n");
     merge(first, count);
+    printf("Completed merge\n");
 
     bb_player *second = players;
     bb_player *tmp2;
@@ -108,22 +110,39 @@ int sort(bb_player *players, int count) {
     merge(second, count);
 }
 
+//ISSUE: merge is segfaulting
 int merge (bb_player *players, int count) {
     if (count == 1) return 0;
+    if (count == 2) {
+        //seg fault in condition!!
+        if (players->next->avg_points > players->avg_points) {
+            bb_player *temp = players->next;
+            temp->next = players;
+        }
+        // return temp;
+        if (players->next->avg_points == players->avg_points) {
+            if (strncmp(players->next->next->name, players->next->name, 80) < 0) {
+                bb_player *temp = players->next;
+                temp->next = players;
+            }
+        }
+        return 0;
+    }
     
     while (players->next != NULL) {
+        //seg fault in condition (next->next is null)
         if (players->next->next->avg_points > players->next->avg_points) {
             bb_player *temp = players->next;
             players->next = players->next->next;
             players->next->next = temp;
         }
-         if (players->next->next->avg_points == players->next->avg_points) {
+        if (players->next->next->avg_points == players->next->avg_points) {
              if (strncmp(players->next->next->name, players->next->name, 80) < 0) {
                  bb_player *temp = players->next;
                 players->next = players->next->next;
                 players->next->next = temp;
              }
-         }
+        }
         players = players->next;
     }
 
