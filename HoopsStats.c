@@ -13,9 +13,12 @@ typedef struct player {
 
 FILE *fr;
 
-int sort(bb_player *players, int count);
-int merge(bb_player *players, int count);
-// int swap(bb_player* players, bb_player a, bb_player b, int loc);
+bb_player* sort(bb_player *players, int total);
+bb_player* getFirst(bb_player *players);
+bb_player* getLast(bb_player *players);
+bb_player* findMax(bb_player *players, bb_player *min, bb_player *max);
+
+bb_player* players;
 
 int main(int num, char* args[]) {
     char* file_name = args[num-1];
@@ -64,7 +67,7 @@ int main(int num, char* args[]) {
         count++;
     }
 
-    sort(players, count);
+    players = sort(players, count);
 
     tmp = players;
     while (tmp != NULL) {
@@ -82,69 +85,83 @@ int main(int num, char* args[]) {
     return 0;
 }
 
-//Use MergeSort
-int sort(bb_player *players, int count) {
-    if (count <= 1) return 0;
-    int current = 0;
-    int middle = count/2;
+bb_player* sort(bb_player *players, int total) {
+    if (total <= 1) return players;
     
-    bb_player *first = players;
-    bb_player *tmp1;
-    while (current <= middle) {
-        tmp1 = players;
-        players = players->next;
-        current++;
-    }
-    sort(first, current-1);
-    printf("Completed sort on first half\n");
-    merge(first, count);
-    printf("Completed merge\n");
+    bb_player *head = getFirst(players);
+    bb_player *last = getLast(players);
+    bb_player *tmp = head;
+    int count = 1;
 
-    bb_player *second = players;
-    bb_player *tmp2;
-    while (current < count) {
-        tmp2 = players;
-        players = players->next;
+    while (count < total) {
+        bb_player *current_max = findMax(players, last, tmp);
+        bb_player *t = (bb_player*) malloc(sizeof(bb_player));
+
+        strcpy(t->name, current_max->name);
+        t->number = current_max->number;
+        t->avg_points = current_max->avg_points;
+        t->year = current_max->year;
+        t->next = NULL;
+
+        tmp->next = t;
+        tmp = tmp->next;
+        count++;
+        
+        bb_player *f = t;
+        free(f);
     }
-    sort(second, middle);
-    merge(second, count);
+    // //ISSUE: leak - need to free space i malloced
+    // while (players != NULL) {
+    //     bb_player *tmp = players;
+    //     players = players->next;
+    //     free(tmp);
+    // }
+    return head;
 }
 
-//ISSUE: merge is segfaulting
-int merge (bb_player *players, int count) {
-    if (count == 1) return 0;
-    if (count == 2) {
-        //seg fault in condition!!
-        if (players->next->avg_points > players->avg_points) {
-            bb_player *temp = players->next;
-            temp->next = players;
+bb_player* getFirst(bb_player *players) {
+    bb_player *first = players;
+    while (players != NULL) {
+        if (players->avg_points > first->avg_points) {
+            first = players;
         }
-        // return temp;
-        if (players->next->avg_points == players->avg_points) {
-            if (strncmp(players->next->next->name, players->next->name, 80) < 0) {
-                bb_player *temp = players->next;
-                temp->next = players;
-            }
-        }
-        return 0;
-    }
-    
-    while (players->next != NULL) {
-        //seg fault in condition (next->next is null)
-        if (players->next->next->avg_points > players->next->avg_points) {
-            bb_player *temp = players->next;
-            players->next = players->next->next;
-            players->next->next = temp;
-        }
-        if (players->next->next->avg_points == players->next->avg_points) {
-             if (strncmp(players->next->next->name, players->next->name, 80) < 0) {
-                 bb_player *temp = players->next;
-                players->next = players->next->next;
-                players->next->next = temp;
-             }
+        if (players->avg_points == first->avg_points && strncmp(players->name, first->name, 80) < 0) {
+            first = players;
         }
         players = players->next;
     }
+    return first;
+}
 
-    return 0;
+bb_player* getLast(bb_player *players) {
+    bb_player *last = players;
+    while (players != NULL) {
+        if (players->avg_points < last->avg_points) {
+            last = players;
+        }
+        if (players->avg_points == last->avg_points && strncmp(players->name, last->name, 80) > 0) {
+            last = players;
+        }
+        players = players->next;
+    }
+    return last;
+}
+
+bb_player* findMax(bb_player *players, bb_player *min, bb_player *max) {
+    bb_player *new_max = min;
+    while (players != NULL) {
+        if (players->next == NULL) {
+            if (players->avg_points > max->avg_points || 
+            players->avg_points == max->avg_points && strncmp(players->name, max->name, 80) == 0) 
+                break;
+        }
+        if (players->avg_points > new_max->avg_points) {
+            new_max = players;
+        }
+        else if (players->avg_points == new_max->avg_points && strncmp(players->name, new_max->name, 80) < 0) {
+            new_max = players;
+        }
+        players = players->next;
+    }
+    return new_max;
 }
