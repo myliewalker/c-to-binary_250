@@ -14,8 +14,6 @@ typedef struct player {
 FILE *fr;
 
 bb_player* sort(bb_player *players, int total);
-bb_player* getFirst(bb_player *players);
-bb_player* seen(bb_player *original, bb_player *current_max);
 
 int main(int num, char* args[]) {
     char* file_name = args[num-1];
@@ -64,9 +62,7 @@ int main(int num, char* args[]) {
         count++;
     }
 
-    // printf("count is %d", count);
     players = sort(players, count);
-    // players = bubble(players, count);
 
     tmp = players;
     while (tmp != NULL) {
@@ -75,12 +71,12 @@ int main(int num, char* args[]) {
     }
 
     //ISSUE: fix this
-    // tmp = players;
-    // while (tmp != NULL) {
-    //     bb_player *t = tmp;
-    //     tmp = tmp->next;
-    //     free (t);
-    // }
+    tmp = players;
+    while (tmp != NULL) {
+        bb_player *t = tmp;
+        tmp = tmp->next;
+        free (t);
+    }
 
     while (players != NULL) {
         bb_player *tmp = players;
@@ -94,62 +90,14 @@ int main(int num, char* args[]) {
 
 bb_player* sort(bb_player *players, int total) {
     if (total <= 1) return players;
-
-    bb_player *start = getFirst(players);
-    // printf("%s %f \n", start->name, start->avg_points);
-    bb_player *original = seen(players, start);
-
-    bb_player *tmp = start;
-    int count = 1;
-
-    while (count < total) {
-        bb_player *current_max = getFirst(original);
-        // printf("%s %f \n", current_max->name, current_max->avg_points);
-        original = seen(original, current_max);
-
-        // return original;
-
-        bb_player *t = (bb_player*) malloc(sizeof(bb_player));
-
-        strcpy(t->name, current_max->name);
-        t->number = current_max->number;
-        t->avg_points = current_max->avg_points;
-        t->year = current_max->year;
-        t->next = NULL;
-
-        tmp->next = t;
-        tmp = tmp->next;
-        // return start;
-        count++;
-    }
-    return start;
-}
-
-bb_player* getFirst(bb_player *players) {
-    bb_player *max = players;
-    bb_player *tmp = players;
-    while (tmp != NULL) {
-        if (tmp->avg_points > max->avg_points) {
-            max = tmp;
+    bb_player *head = players;
+    while (players != NULL) {
+        if (players->next->avg_points > players->avg_points) {
+            bb_player *tmp = players->next;
+            players->next = players;
+            players = tmp;
         }
-        if (tmp->avg_points == max->avg_points && strcmp(tmp->name, max->name) < 0) {
-                // printf("statement registered\n");
-            max = tmp;
-        }
-        // printf("first max %s\n", max->name);
-        tmp = tmp->next;
-    }
-    return max;
-}
-
-bb_player* seen(bb_player *original, bb_player *current_max) {
-    bb_player *head = original;
-    bb_player *tmp = head;
-    while (tmp != NULL) {
-        if (strcmp(tmp->name, current_max->name) == 0) {
-            tmp->avg_points = -1;
-        }
-        tmp = tmp->next;
+        players = players->next;
     }
     return head;
 }
