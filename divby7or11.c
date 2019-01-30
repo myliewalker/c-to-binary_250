@@ -18,6 +18,6 @@ int main(int num, char* args[]) {
     for (int i = 0; i < total; i++) {
         printf("%d\n", numbers[i]);
     }
-
+    
     return 0;
 }

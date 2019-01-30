@@ -64,9 +64,7 @@ int main(int num, char* args[]) {
         count++;
     }
 
-    // printf("count is %d", count);
     players = sort(players, count);
-    // players = bubble(players, count);
 
     tmp = players;
     while (tmp != NULL) {
@@ -74,13 +72,14 @@ int main(int num, char* args[]) {
         tmp = tmp->next;
     }
 
-    //ISSUE: fix this
-    // tmp = players;
-    // while (tmp != NULL) {
-    //     bb_player *t = tmp;
-    //     tmp = tmp->next;
-    //     free (t);
-    // }
+    tmp = players;
+    while (tmp != NULL) {
+        bb_player *t = tmp;
+        tmp = tmp->next;
+        free (t);
+    }
+
+    if (count <= 1) return 0;
 
     while (players != NULL) {
         bb_player *tmp = players;
@@ -120,7 +119,6 @@ bb_player* sort(bb_player *players, int total) {
         t->year = current_max->year;
         t->next = NULL;
 
-        //ISSUE: next line modifies original and makes it only 2 elements
         tmp->next = t;
         tmp = tmp->next;
         count++;
@@ -136,10 +134,8 @@ bb_player* getFirst(bb_player *players) {
             max = tmp;
         }
         if (tmp->avg_points == max->avg_points && strcmp(tmp->name, max->name) < 0) {
-                // printf("statement registered\n");
             max = tmp;
         }
-        // printf("first max %s\n", max->name);
         tmp = tmp->next;
     }
     return max;
