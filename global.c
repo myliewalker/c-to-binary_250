@@ -13,13 +13,15 @@ typedef struct player {
 
 FILE *fr;
 
-bb_player* sort(bb_player *players, int total);
+int sort(int total);
 bb_player* getFirst(bb_player *players);
 bb_player* seen(bb_player *original, bb_player *current_max);
 
+bb_player* players;
+
 int main(int num, char* args[]) {
     char* file_name = args[num-1];
-    bb_player *players = NULL;
+    players = NULL;
     bb_player *tmp = NULL;
     int count = 0;
     char line[80];
@@ -64,7 +66,7 @@ int main(int num, char* args[]) {
         count++;
     }
 
-    players = sort(players, count);
+    sort(count);
 
     tmp = players;
     while (tmp != NULL) {
@@ -72,27 +74,27 @@ int main(int num, char* args[]) {
         tmp = tmp->next;
     }
 
-    tmp = players;
-    while (tmp != NULL) {
-        bb_player *t = tmp;
-        tmp = tmp->next;
-        free (t);
-    }
+    // tmp = players;
+    // while (tmp != NULL) {
+    //     bb_player *t = tmp;
+    //     tmp = tmp->next;
+    //     free (t);
+    // }
 
     // if (count <= 1) return 0;
 
-    // while (players != NULL) {
-    //     bb_player *tmp = players;
-    //     players = players->next;
-    //     free(tmp);
-    // }
+    while (players != NULL) {
+        bb_player *tmp = players;
+        players = players->next;
+        free(tmp);
+    }
 
     fclose(fr);
     return 0;
 }
 
-bb_player* sort(bb_player *players, int total) {
-    if (total <= 1) return players;
+int sort(int total) {
+    if (total <= 1) return 0;
 
     bb_player *start = (bb_player*) malloc(sizeof(bb_player));
     bb_player *t = getFirst(players);
@@ -124,15 +126,8 @@ bb_player* sort(bb_player *players, int total) {
         count++;
     }
 
-    bb_player* all[count];
-    tmp = players;
-    for (int i = 0; i < count; i++) {
-        all[i] = tmp;
-        tmp = tmp->next;
-        free(all[i]);
-    }
-
-    return start;
+    players = start;
+    return 0;
 }
 
 bb_player* getFirst(bb_player *players) {

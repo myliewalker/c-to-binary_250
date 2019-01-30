@@ -79,13 +79,13 @@ int main(int num, char* args[]) {
         free (t);
     }
 
-    // if (count <= 1) return 0;
+    if (count <= 1) return 0;
 
-    // while (players != NULL) {
-    //     bb_player *tmp = players;
-    //     players = players->next;
-    //     free(tmp);
-    // }
+    while (players != NULL) {
+        bb_player *tmp = players;
+        players = players->next;
+        free(tmp);
+    }
 
     fclose(fr);
     return 0;
@@ -122,14 +122,6 @@ bb_player* sort(bb_player *players, int total) {
         tmp->next = t;
         tmp = tmp->next;
         count++;
-    }
-
-    bb_player* all[count];
-    tmp = players;
-    for (int i = 0; i < count; i++) {
-        all[i] = tmp;
-        tmp = tmp->next;
-        free(all[i]);
     }
 
     return start;
