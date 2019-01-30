@@ -79,14 +79,6 @@ int main(int num, char* args[]) {
         free (t);
     }
 
-    // if (count <= 1) return 0;
-
-    // while (players != NULL) {
-    //     bb_player *tmp = players;
-    //     players = players->next;
-    //     free(tmp);
-    // }
-
     fclose(fr);
     return 0;
 }
