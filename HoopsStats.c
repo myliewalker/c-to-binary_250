@@ -95,19 +95,22 @@ int main(int num, char* args[]) {
 bb_player* sort(bb_player *players, int total) {
     if (total <= 1) return players;
 
-    bb_player *start = getFirst(players);
-    // printf("%s %f \n", start->name, start->avg_points);
-    bb_player *original = seen(players, start);
+    bb_player *start = (bb_player*) malloc(sizeof(bb_player));
+    bb_player *t = getFirst(players);
+    strcpy(start->name, t->name);
+    start->avg_points = t->avg_points;
+    start->number = t->number;
+    start->year = t->year;
+    start->next = NULL;
 
     bb_player *tmp = start;
+    bb_player *original = seen(players, start);
+
     int count = 1;
 
     while (count < total) {
         bb_player *current_max = getFirst(original);
-        // printf("%s %f \n", current_max->name, current_max->avg_points);
         original = seen(original, current_max);
-
-        // return original;
 
         bb_player *t = (bb_player*) malloc(sizeof(bb_player));
 
@@ -117,9 +120,9 @@ bb_player* sort(bb_player *players, int total) {
         t->year = current_max->year;
         t->next = NULL;
 
+        //ISSUE: next line modifies original and makes it only 2 elements
         tmp->next = t;
         tmp = tmp->next;
-        // return start;
         count++;
     }
     return start;
